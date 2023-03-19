@@ -1218,7 +1218,7 @@ if [[ "${CONFIG[ISAL]}" = "y" ]]; then
 	fi
 	echo -n "Configuring ISA-L (logfile: $ISAL_LOG)..."
 	./autogen.sh &> $ISAL_LOG
-	./configure CFLAGS="-fPIC -g -O2" "${ISAL_OPTS[@]}" --enable-shared=no >> $ISAL_LOG 2>&1
+	./configure AS="nasm" CFLAGS="-fcf-protection=full -fPIC -g -O2" "${ISAL_OPTS[@]}" --enable-shared=no >> $ISAL_LOG 2>&1
 	echo "done."
 	cd $rootdir
 else
