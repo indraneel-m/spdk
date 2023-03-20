@@ -7065,7 +7065,8 @@ bdev_open(struct spdk_bdev *bdev, bool write, struct spdk_bdev_desc *desc)
 		return -ENODEV;
 	}
 
-	if (write && bdev->internal.claim_type != SPDK_BDEV_CLAIM_NONE) {
+	if (write && bdev->internal.claim_type != SPDK_BDEV_CLAIM_NONE &&
+	    strcmp(bdev->internal.claim_module->name, "NVMe-oF Target")) {
 		SPDK_ERRLOG("Could not open %s - %s module already claimed it\n",
 			    bdev->name, bdev->internal.claim.v1.module->name);
 		spdk_spin_unlock(&bdev->internal.spinlock);
@@ -7237,8 +7238,11 @@ bdev_register_finished(void *arg)
 {
 	struct spdk_bdev_desc *desc = arg;
 	struct spdk_bdev *bdev = spdk_bdev_desc_get_bdev(desc);
+	const char *bdev_name = spdk_bdev_get_name(bdev);
 
-	spdk_notify_send("bdev_register", spdk_bdev_get_name(bdev));
+	if (bdev_name) {
+		spdk_notify_send("bdev_register", bdev_name);
+	}
 
 	spdk_spin_lock(&g_bdev_mgr.spinlock);
 
