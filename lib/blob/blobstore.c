@@ -5742,11 +5742,11 @@ uint64_t spdk_blob_calc_used_clusters(struct spdk_blob *blob)
 		return spdk_blob_get_num_clusters(blob);
 	}
 
-	pthread_mutex_lock(&blob->bs->used_clusters_mutex);
+	spdk_spin_lock(&blob->bs->used_lock);
 
 	if (blob->num_used_clusters_cache > 0) {
 		num = blob->num_used_clusters_cache;
-		pthread_mutex_unlock(&blob->bs->used_clusters_mutex);
+		spdk_spin_unlock(&blob->bs->used_lock);
 		return num;
 	}
 
@@ -5758,7 +5758,7 @@ uint64_t spdk_blob_calc_used_clusters(struct spdk_blob *blob)
 	}
 	blob->num_used_clusters_cache = num;
 
-	pthread_mutex_unlock(&blob->bs->used_clusters_mutex);
+	spdk_spin_unlock(&blob->bs->used_lock);
 
 	return num;
 }
